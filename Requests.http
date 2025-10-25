@@ -1,0 +1,18 @@
+@HOST = http://localhost:5000/api/
+@TOKEN = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTMyYzEzYS0wN2UyLTQ3ZWUtOTQzZC01Mjg4MjMzNTdhZTAiLCJ1c2VybmFtZSI6ImpvaG4uZG9lIiwiaWF0IjoxNzYxMzkwNjU0LCJleHAiOjE3NjEzOTE1NTR9.Qt2kvggSaihpEw75d1dj2UUTivvL9QPKTWMxJZlrxK4
+
+### Health
+GET {{HOST}}health
+
+### Login
+POST {{HOST}}auth/login
+Content-Type: application/json
+
+{
+    "username": "john.doe",
+    "password": "passw0rd"
+}
+
+###
+GET {{HOST}}protected
+Authorization: {{TOKEN}}
