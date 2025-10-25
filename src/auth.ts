@@ -13,8 +13,7 @@ export function generateJwt(userId: string, username: string) {
     username,
   };
 
-  // expires in 15 minutes (customize this!)
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "60m" });
 }
 
 export function verifyJwt(token: string): JwtPayload {
