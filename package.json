@@ -1,0 +1,38 @@
+{
+  "name": "cottonarrow.hub",
+  "version": "1.0.0",
+  "description": "A central hub for the 'Cotton Arrow' chat application.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GeorgievPlamen/CottonArrow.Hub.git"
+  },
+  "keywords": [
+    "chat",
+    "app",
+    "secure",
+    "e2e",
+    "p2p"
+  ],
+  "author": "CottonArrow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GeorgievPlamen/CottonArrow.Hub/issues"
+  },
+  "homepage": "https://github.com/GeorgievPlamen/CottonArrow.Hub#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.4",
+    "@types/node": "^24.9.1",
+    "@types/ws": "^8.18.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "ws": "^8.18.3"
+  }
+}
