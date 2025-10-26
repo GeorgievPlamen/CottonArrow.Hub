@@ -63,7 +63,8 @@ const wss = new WebSocketServer({
 });
 
 type UserCtx = { userId: string; username: string };
-const usersBySocket = new WeakMap<WebSocket, UserCtx>();
+type WebSocketContext = { user: UserCtx; ws: WebSocket };
+const connectedUsers = new Map<string, WebSocketContext>();
 
 server.on("upgrade", (req, socket, head) => {
   try {
@@ -82,8 +83,11 @@ server.on("upgrade", (req, socket, head) => {
     const user: UserCtx = { userId: payload.sub, username: payload.username };
 
     wss.handleUpgrade(req, socket, head, (ws) => {
-      usersBySocket.set(ws, user);
-      wss.emit("connection", ws, req);
+      connectedUsers.set(user.userId, {
+        user: user,
+        ws: ws,
+      });
+      wss.emit("connection", ws, req, user.userId);
     });
   } catch {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
@@ -91,15 +95,20 @@ server.on("upgrade", (req, socket, head) => {
   }
 });
 
-wss.on("connection", (ws: WebSocket, req) => {
-  const me = usersBySocket.get(ws)!;
+// @ts-ignore
+wss.on("connection", (ws: WebSocket, req, userId) => {
+  const context = connectedUsers.get(userId);
+  if (!context) throw new Error("Invalid context");
+
+  const me = context.user;
+
+  console.log("userId", userId);
+
   const welcomeMessage = `${me.username} joined`;
   console.log(welcomeMessage);
 
-  for (const client of wss.clients) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(welcomeMessage);
-    }
+  for (const user of connectedUsers.values()) {
+    user.ws.send(JSON.stringify(user.user));
   }
 
   ws.on("message", (data) => {
@@ -125,7 +134,12 @@ wss.on("connection", (ws: WebSocket, req) => {
   });
 
   ws.on("close", () => {
-    usersBySocket.delete(ws);
+    connectedUsers.delete(userId);
+
+    for (const user of connectedUsers.values()) {
+      user.ws.send(JSON.stringify(user.user));
+    }
+
     console.log("Client disconnected");
   });
 });
