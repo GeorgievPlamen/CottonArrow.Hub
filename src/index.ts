@@ -72,8 +72,7 @@ server.on("upgrade", (req, socket, head) => {
     const offered = (Array.isArray(raw) ? raw[0] : raw) ?? "";
     const parts = offered
       .split(",")
-      // @ts-ignore
-      .map((s) => s.trim())
+      .map((s: string) => s.trim())
       .filter(Boolean);
     if (parts.length < 2 || parts[0] !== "auth")
       throw new Error("bad subprotocols");
@@ -95,54 +94,56 @@ server.on("upgrade", (req, socket, head) => {
   }
 });
 
-// @ts-ignore
-wss.on("connection", (ws: WebSocket, req, userId) => {
-  const context = connectedUsers.get(userId);
-  if (!context) throw new Error("Invalid context");
+wss.on(
+  "connection",
+  (ws: WebSocket, req: http.IncomingHttpHeaders, userId: string) => {
+    const context = connectedUsers.get(userId);
+    if (!context) throw new Error("Invalid context");
 
-  const me = context.user;
+    const me = context.user;
 
-  console.log("userId", userId);
+    console.log("userId", userId);
 
-  const welcomeMessage = `${me.username} joined`;
-  console.log(welcomeMessage);
-
-  for (const user of connectedUsers.values()) {
-    user.ws.send(JSON.stringify(user.user));
-  }
-
-  ws.on("message", (data) => {
-    console.log(`Received message: ${data}`);
-
-    try {
-      const message: ClientMessage = JSON.parse(data.toString("utf-8"));
-
-      switch (message.message.type) {
-        case MessageTypes.chat:
-          console.log(message.message.content);
-          break;
-        case MessageTypes.signalOffer:
-          console.log(message.message.to);
-          console.log(message.message.sdp);
-          break;
-      }
-
-      ws.send(`Server received: ${data}`);
-    } catch (error) {
-      ws.send("Server received: Invalid message");
-    }
-  });
-
-  ws.on("close", () => {
-    connectedUsers.delete(userId);
+    const welcomeMessage = `${me.username} joined`;
+    console.log(welcomeMessage);
 
     for (const user of connectedUsers.values()) {
       user.ws.send(JSON.stringify(user.user));
     }
 
-    console.log("Client disconnected");
-  });
-});
+    ws.on("message", (data) => {
+      console.log(`Received message: ${data}`);
+
+      try {
+        const message: ClientMessage = JSON.parse(data.toString("utf-8"));
+
+        switch (message.message.type) {
+          case MessageTypes.chat:
+            console.log(message.message.content);
+            break;
+          case MessageTypes.signalOffer:
+            console.log(message.message.to);
+            console.log(message.message.sdp);
+            break;
+        }
+
+        ws.send(`Server received: ${data}`);
+      } catch (error) {
+        ws.send("Server received: Invalid message");
+      }
+    });
+
+    ws.on("close", () => {
+      connectedUsers.delete(userId);
+
+      for (const user of connectedUsers.values()) {
+        user.ws.send(JSON.stringify(user.user));
+      }
+
+      console.log("Client disconnected");
+    });
+  }
+);
 
 server.listen(5000, () => {
   console.log("HTTP + WS listening on http://localhost:5000");
