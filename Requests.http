@@ -14,5 +14,5 @@ Content-Type: application/json
 }
 
 ###
-GET {{HOST}}protected
+GET {{HOST}}auth/protected
 Authorization: {{TOKEN}}
