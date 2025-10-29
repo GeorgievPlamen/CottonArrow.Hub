@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyJwt } from "../jwt";
+import { verifyJwt } from "../features/auth/jwt";
 
 export default function authorize(
   req: Request,

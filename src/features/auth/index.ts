@@ -1,7 +1,7 @@
 import express from "express";
 import { randomUUID } from "node:crypto";
 import { generateJwt } from "./jwt";
-import authorize from "./middleware/authorize";
+import authorize from "../../middleware/authorize";
 
 const authRouter = express.Router();
 
