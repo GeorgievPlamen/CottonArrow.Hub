@@ -3,13 +3,21 @@ import http from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
 import { verifyJwt } from "./features/auth/jwt";
 import authRouter from "./features/auth";
+import path from "node:path";
+
+const PUBLIC_PATH = path.join(__dirname, "..", "public");
 
 const app = express();
 
 app.use(express.json());
+app.use(express.static(PUBLIC_PATH));
 
 app.get("/api/health", (_, res) => {
   res.status(200).send("Alive and well.");
+});
+
+app.get("/", (_, res) => {
+  res.sendFile(path.join(PUBLIC_PATH, "webrtc", "index.html"));
 });
 
 app.use("/api/auth", authRouter);
