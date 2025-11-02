@@ -2,7 +2,7 @@
 
 ## WS with wscat
 
-wscat -c ws://localhost:5000 -s auth -s "$token"
+wscat -c ws://localhost:5000 -s auth -s "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNWU1Y2MxNC04NjE1LTQwNGEtYmQxYS0xODA2MjM5ZjAxNDYiLCJ1c2VybmFtZSI6ImpvaG4xLmRvZSIsImlhdCI6MTc2MjA3NDM4NywiZXhwIjoxNzYyMDc3OTg3fQ.udsEvZHdgWloLxELTY-ikFc4Kwl_LLqDr4Og9k7Co34"
 
 ## coturn
 

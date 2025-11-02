@@ -1,5 +1,5 @@
 @HOST = http://localhost:5000/api/
-@TOKEN = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMDkwOGUwNi0wMmQzLTRlNmMtYmU2OS01YjdmZWQ3NDc5YjIiLCJ1c2VybmFtZSI6ImpvaG4yLmRvZSIsImlhdCI6MTc2MTcyMDg3NSwiZXhwIjoxNzYxNzI0NDc1fQ.oLzH__J4jUEAfc-kmY0yT2H-7mglJNeDgla1D59z_20
+@TOKEN = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNWU1Y2MxNC04NjE1LTQwNGEtYmQxYS0xODA2MjM5ZjAxNDYiLCJ1c2VybmFtZSI6ImpvaG4xLmRvZSIsImlhdCI6MTc2MjA3NDM4NywiZXhwIjoxNzYyMDc3OTg3fQ.udsEvZHdgWloLxELTY-ikFc4Kwl_LLqDr4Og9k7Co34
 
 ### Health
 GET {{HOST}}health
@@ -9,7 +9,7 @@ POST {{HOST}}auth/login
 Content-Type: application/json
 
 {
-    "username": "john2.doe",
+    "username": "john1.doe",
     "password": "passw0rd"
 }
 

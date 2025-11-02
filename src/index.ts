@@ -31,7 +31,7 @@ const wss = new WebSocketServer({
   },
 });
 
-type UserCtx = { userId: string; username: string };
+type UserCtx = { id: string; username: string };
 type WebSocketContext = { user: UserCtx; ws: WebSocket };
 const connectedUsers = new Map<string, WebSocketContext>();
 
@@ -48,14 +48,14 @@ server.on("upgrade", (req, socket, head) => {
 
     const token = parts[1];
     const payload = verifyJwt(token); // throws if invalid/expired
-    const user: UserCtx = { userId: payload.sub, username: payload.username };
+    const user: UserCtx = { id: payload.sub, username: payload.username };
 
     wss.handleUpgrade(req, socket, head, (ws) => {
-      connectedUsers.set(user.userId, {
+      connectedUsers.set(user.id, {
         user: user,
         ws: ws,
       });
-      wss.emit("connection", ws, req, user.userId);
+      wss.emit("connection", ws, req, user.id);
     });
   } catch {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
@@ -76,8 +76,14 @@ wss.on(
     const welcomeMessage = `${me.username} joined`;
     console.log(welcomeMessage);
 
+    const activeUsers: ActiveUsersMessage = {
+      activeUsersCount: connectedUsers.size,
+      Users: [...connectedUsers.values()].map((x) => x.user),
+      type: MessageTypes.users,
+    };
+
     for (const user of connectedUsers.values()) {
-      user.ws.send(JSON.stringify(user.user));
+      user.ws.send(JSON.stringify(activeUsers));
     }
 
     ws.on("message", (data) => {
@@ -87,12 +93,14 @@ wss.on(
         const message: ClientMessage = JSON.parse(data.toString("utf-8"));
 
         switch (message.message.type) {
-          case MessageTypes.chat:
-            console.log(message.message.content);
-            break;
           case MessageTypes.signalOffer:
-            console.log(message.message.to);
-            console.log(message.message.sdp);
+            console.log(message.message);
+            break;
+          case MessageTypes.signalAnswer:
+            console.log(message.message);
+            break;
+          case MessageTypes.signalIce:
+            console.log(message.message);
             break;
         }
 
@@ -119,21 +127,39 @@ server.listen(5000, () => {
 });
 
 interface ClientMessage {
-  message: ChatMessage | OfferMessage;
+  message: ActiveUsersMessage | OfferMessage | AnswerMessage | IceMessage;
 }
 
 enum MessageTypes {
-  chat = "chat",
+  users = "users",
   signalOffer = "signal:offer",
+  signalAnswer = "signal:answer",
+  signalIce = "signal:ice-candidate",
 }
 
-interface ChatMessage {
-  type: MessageTypes.chat;
-  content: string;
+interface ActiveUsersMessage {
+  type: MessageTypes.users;
+  activeUsersCount: number;
+  Users: UserCtx[];
 }
 
 interface OfferMessage {
   type: MessageTypes.signalOffer;
+  from: string;
   to: string;
   sdp: string;
+}
+
+interface AnswerMessage {
+  type: MessageTypes.signalAnswer;
+  from: string;
+  to: string;
+  sdp: string;
+}
+
+interface IceMessage {
+  type: MessageTypes.signalIce;
+  from: string;
+  to: string;
+  candidate: string;
 }
