@@ -31,7 +31,6 @@ const wss = new WebSocketServer({
   },
 });
 
-type UserCtx = { id: string; username: string };
 type WebSocketContext = { user: UserCtx; ws: WebSocket };
 const connectedUsers = new Map<string, WebSocketContext>();
 
@@ -82,6 +81,10 @@ wss.on(
       type: MessageTypes.users,
     };
 
+    console.log("activeUsers", activeUsers);
+    const activeUsersJson = JSON.stringify(activeUsers);
+    console.log("activeUsersJson", activeUsersJson);
+
     for (const user of connectedUsers.values()) {
       user.ws.send(JSON.stringify(activeUsers));
     }
@@ -90,7 +93,7 @@ wss.on(
       console.log(`Received message: ${data}`);
 
       try {
-        const message: ClientMessage = JSON.parse(data.toString("utf-8"));
+        const message: WsMessage = JSON.parse(data.toString("utf-8"));
 
         switch (message.message.type) {
           case MessageTypes.signalOffer:
@@ -126,38 +129,40 @@ server.listen(5000, () => {
   console.log("HTTP + WS listening on http://localhost:5000");
 });
 
-interface ClientMessage {
+export type UserCtx = { id: string; username: string };
+
+export interface WsMessage {
   message: ActiveUsersMessage | OfferMessage | AnswerMessage | IceMessage;
 }
 
-enum MessageTypes {
+export enum MessageTypes {
   users = "users",
   signalOffer = "signal:offer",
   signalAnswer = "signal:answer",
   signalIce = "signal:ice-candidate",
 }
 
-interface ActiveUsersMessage {
+export interface ActiveUsersMessage {
   type: MessageTypes.users;
   activeUsersCount: number;
   Users: UserCtx[];
 }
 
-interface OfferMessage {
+export interface OfferMessage {
   type: MessageTypes.signalOffer;
   from: string;
   to: string;
   sdp: string;
 }
 
-interface AnswerMessage {
+export interface AnswerMessage {
   type: MessageTypes.signalAnswer;
   from: string;
   to: string;
   sdp: string;
 }
 
-interface IceMessage {
+export interface IceMessage {
   type: MessageTypes.signalIce;
   from: string;
   to: string;
