@@ -75,19 +75,7 @@ wss.on(
     const welcomeMessage = `${me.username} joined`;
     console.log(welcomeMessage);
 
-    const activeUsers: ActiveUsersMessage = {
-      activeUsersCount: connectedUsers.size,
-      Users: [...connectedUsers.values()].map((x) => x.user),
-      type: MessageTypes.users,
-    };
-
-    console.log("activeUsers", activeUsers);
-    const activeUsersJson = JSON.stringify(activeUsers);
-    console.log("activeUsersJson", activeUsersJson);
-
-    for (const user of connectedUsers.values()) {
-      user.ws.send(JSON.stringify(activeUsers));
-    }
+    sendActiveUsersMessage();
 
     ws.on("message", (data) => {
       console.log(`Received message: ${data}`);
@@ -114,13 +102,9 @@ wss.on(
     });
 
     ws.on("close", () => {
-      connectedUsers.delete(userId);
-
-      for (const user of connectedUsers.values()) {
-        user.ws.send(JSON.stringify(user.user));
-      }
-
       console.log("Client disconnected");
+      connectedUsers.delete(userId);
+      sendActiveUsersMessage();
     });
   }
 );
@@ -167,4 +151,18 @@ export interface IceMessage {
   from: string;
   to: string;
   candidate: string;
+}
+function sendActiveUsersMessage() {
+  const activeUsers: ActiveUsersMessage = {
+    activeUsersCount: connectedUsers.size,
+    Users: [...connectedUsers.values()].map((x) => x.user),
+    type: MessageTypes.users,
+  };
+
+  console.log("activeUsers", activeUsers);
+  const activeUsersJson = JSON.stringify(activeUsers);
+
+  for (const user of connectedUsers.values()) {
+    user.ws.send(activeUsersJson);
+  }
 }
