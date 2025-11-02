@@ -96,7 +96,7 @@ wss.on(
         }
 
         ws.send(`Server received: ${data}`);
-      } catch (error) {
+      } catch {
         ws.send("Server received: Invalid message");
       }
     });
