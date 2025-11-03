@@ -9,7 +9,7 @@ POST {{HOST}}auth/login
 Content-Type: application/json
 
 {
-    "username": "john1.doe",
+    "username": "john1123213123.doe",
     "password": "passw0rd"
 }
 

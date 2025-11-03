@@ -81,18 +81,21 @@ wss.on(
       console.log(`Received message: ${data}`);
 
       try {
-        const message: WsMessage = JSON.parse(data.toString("utf-8"));
+        const { message }: WsMessage = JSON.parse(data.toString("utf-8"));
 
-        switch (message.message.type) {
+        switch (message.type) {
           case MessageTypes.signalOffer:
-            console.log(message.message);
-            break;
           case MessageTypes.signalAnswer:
-            console.log(message.message);
+          case MessageTypes.signalIce: {
+            const receiver = connectedUsers.get(message.to);
+
+            if (!receiver) {
+              ws.send(`Could not find user with id: ${message.to}`);
+            }
+
+            receiver?.ws.send(JSON.stringify(message));
             break;
-          case MessageTypes.signalIce:
-            console.log(message.message);
-            break;
+          }
         }
 
         ws.send(`Server received: ${data}`);
