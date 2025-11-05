@@ -88,15 +88,11 @@ wss.on(
 
         console.log("parsed message", message);
 
-        console.log("message.type", message.type);
         switch (message.type) {
           case MessageTypes.signalIce:
           case MessageTypes.signalAnswer:
           case MessageTypes.signalOffer: {
             const receiver = connectedUsers.get(message.to);
-
-            console.log("from", message.from);
-            console.log("to", message.to);
 
             if (!receiver) {
               ws.send(`Could not find user with id: ${message.to}`);
@@ -165,10 +161,10 @@ function sendActiveUsersMessage() {
     type: MessageTypes.users,
   };
 
-  console.log("--------------------\n")
+  console.log("--------------------\n");
   console.log(activeUsers);
   const activeUsersJson = JSON.stringify(activeUsers);
-  console.log("\n--------------------")
+  console.log("\n--------------------");
 
   for (const user of connectedUsers.values()) {
     user.ws.send(activeUsersJson);
