@@ -70,24 +70,33 @@ wss.on(
 
     const me = context.user;
 
-    console.log("userId", userId);
-
-    const welcomeMessage = `${me.username} joined`;
-    console.log(welcomeMessage);
+    console.log(`User: ${me.username} | With Id: ${me.id} Joined.`);
 
     sendActiveUsersMessage();
 
     ws.on("message", (data) => {
-      console.log(`Received message: ${data}`);
+      console.log(
+        `User: ${me.username} | With Id: ${me.id} Sends:\n\n ${data}\n\n----------------------------------------\\n`
+      );
 
       try {
-        const { message }: WsMessage = JSON.parse(data.toString("utf-8"));
+        const message:
+          | ActiveUsersMessage
+          | OfferMessage
+          | AnswerMessage
+          | IceMessage = JSON.parse(data.toString("utf-8"));
 
+        console.log("parsed message", message);
+
+        console.log("message.type", message.type);
         switch (message.type) {
-          case MessageTypes.signalOffer:
+          case MessageTypes.signalIce:
           case MessageTypes.signalAnswer:
-          case MessageTypes.signalIce: {
+          case MessageTypes.signalOffer: {
             const receiver = connectedUsers.get(message.to);
+
+            console.log("from", message.from);
+            console.log("to", message.to);
 
             if (!receiver) {
               ws.send(`Could not find user with id: ${message.to}`);
@@ -97,10 +106,8 @@ wss.on(
             break;
           }
         }
-
-        ws.send(`Server received: ${data}`);
-      } catch {
-        ws.send("Server received: Invalid message");
+      } catch (error) {
+        console.error(error);
       }
     });
 
@@ -117,10 +124,6 @@ server.listen(5000, () => {
 });
 
 export type UserCtx = { id: string; username: string };
-
-export interface WsMessage {
-  message: ActiveUsersMessage | OfferMessage | AnswerMessage | IceMessage;
-}
 
 export enum MessageTypes {
   users = "users",
@@ -162,8 +165,10 @@ function sendActiveUsersMessage() {
     type: MessageTypes.users,
   };
 
-  console.log("activeUsers", activeUsers);
+  console.log("--------------------\n")
+  console.log(activeUsers);
   const activeUsersJson = JSON.stringify(activeUsers);
+  console.log("\n--------------------")
 
   for (const user of connectedUsers.values()) {
     user.ws.send(activeUsersJson);
